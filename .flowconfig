@@ -1,0 +1,8 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/.*
+
+[include]
+index.js
+
+[options]
+log.file=flowserver.log
