@@ -1,0 +1,12 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "node_modules/**/node_modules",
+    "assets/js/bundle.js",
+    "dist/*",
+    "test/*"
+  ],
+  "exec": "npm run build &&  npm run start",
+  "ext": "js json jsx"
+}

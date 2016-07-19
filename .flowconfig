@@ -1,5 +1,11 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/.*
+.*/bookshelf-flow/test/.*
+<PROJECT_ROOT>/node_modules/fbjs/.*
+<PROJECT_ROOT>/assets/js/bundle.js
+<PROJECT_ROOT>/dist/.*
+
+[libs]
+flowlibs
 
 [include]
 index.js

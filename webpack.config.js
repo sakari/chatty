@@ -1,9 +1,12 @@
-var path = require('path')
-var webpack = require('webpack')
+// @flow
+//
+import path from 'path'
+import webpack from 'webpack'
 
 module.exports = {
-  entry: './index.js',
-  output: { path: __dirname, filename: 'bundle.js' },
+  entry: './assets/js/index.js',
+  output: { path: __dirname + '/assets/js', filename: 'bundle.js' },
+  devtool: 'source-map',
   module: {
     loaders: [
       {
