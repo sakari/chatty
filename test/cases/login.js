@@ -147,11 +147,19 @@ test('getting signup while logged in redirects to /', async t => {
   t.is('/', reply.request.uri.path)
 })
 
-test('posting to login while logged in redirects to /', async t => {
+test('posting to login while logged in gives error', async t => {
   const test = new Test()
   await test.whileLoggedIn()
   t.plan(1)
   const reply = await test.post('/login', { email: 'some@example.com', password: 'incorrect' })
+    .catch(e => t.is(409, e.statusCode))
+})
+
+test('posting to signup while logged in gives error', async t => {
+  const test = new Test()
+  await test.whileLoggedIn()
+  t.plan(1)
+  const reply = await test.post('/signup', { email: 'some@example.com', password: 'incorrect' })
     .catch(e => t.is(409, e.statusCode))
 })
 
