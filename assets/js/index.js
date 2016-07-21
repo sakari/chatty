@@ -4,6 +4,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { IndexRoute, Router, Route, Link, browserHistory } from 'react-router'
 import * as request from './request'
+import * as api from '../../server/api'
 
 class Message extends React.Component {
   render() {
@@ -35,7 +36,7 @@ class Signup extends React.Component {
   }
 
   signup() {
-    request.post('/signup', { email: this.state.email, password: this.state.password})
+    request.to(api.signup, { email: this.state.email, password: this.state.password})
       .then(response => {
         if (this.props.location.query && this.props.location.query.next) {
           window.location.href = this.props.location.query.next
@@ -66,7 +67,7 @@ class Login extends React.Component {
     this.state = { email: "", password: "", error: null }
   }
   login() {
-    request.post('/login', { email: this.state.email, password: this.state.password})
+    request.to(api.login, { email: this.state.email, password: this.state.password})
       .then(response => {
         if (this.props.location.query && this.props.location.query.next) {
           window.location.href = this.props.location.query.next

@@ -1,7 +1,7 @@
 // @flow
 
 import 'babel-polyfill'
-import Hapi from 'hapi'
+import {Server} from './lib/hapi'
 import inert from 'inert'
 import vision from 'vision'
 import crumb from 'crumb'
@@ -14,7 +14,7 @@ import authCookie from 'hapi-auth-cookie'
 import User from './models/user'
 import Session from './session'
 
-const server = new Hapi.Server({
+const server = new Server({
   debug: { request: ['auth', 'error']}
 })
 
