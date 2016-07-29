@@ -2,6 +2,7 @@
 
 import test from 'ava'
 import request from 'request-promise-native'
+import * as api from '../../server/api'
 
 class Test {
   crumb: ?string
@@ -37,6 +38,18 @@ class Test {
     throw new Error('missing crumb')
   }
 
+  async api<In, Out>(api: api.Api<In, Out>, body?: In): Promise<Out> {
+    const opts = {
+      ...this.opts(),
+      resolveWithFullResponse: false,
+      headers: this.crumb ? { 'x-csrf-token': this.crumb } : {},
+      method: api.method,
+      json: true,
+      body: body
+    }
+   return await request(`http://localhost:8000${api.path}`, opts)
+  }
+
   async get(path = '') {
     const reply = await request(`http://localhost:8000${path}`, this.opts())
 
@@ -48,19 +61,9 @@ class Test {
     return reply
   }
 
-  async post(path, body) {
-   return await request(`http://localhost:8000${path}`, {
-    ...this.opts(),
-    headers: this.crumb ? { 'x-csrf-token': this.crumb } : {},
-    method: 'post',
-    json: true,
-    body: body
-   })
-  }
-
   async whileLoggedIn() {
     await this.get('/signup')
-    await this.post('/signup', { email: this.email, password: this.password})
+    await this.api(api.signup, { email: this.email, password: this.password})
   }
 
   async withUser() {
@@ -80,7 +83,7 @@ test('signup', async t => {
   await test.get('/signup')
   t.is(test.crumb, test.cookie('crumb'))
 
-  await test.post('/signup', { email: test.email, password: test.password })
+  await test.api(api.signup, { email: test.email, password: test.password })
   t.is('/', (await test.get()).request.uri.path)
 })
 
@@ -89,7 +92,7 @@ test('login', async t => {
   await test.withUser()
 
   t.true(/\/login\?/.test((await test.get('/somepage')).request.uri.path))
-  await test.post('/login', { email: test.email, password: test.password})
+  await test.api(api.login, { email: test.email, password: test.password})
   t.is('/somepage', (await test.get('/somepage')).request.uri.path)
 })
 
@@ -99,7 +102,7 @@ test('login with incorrect user', async t => {
 
   await test.get('/login')
   t.plan(1)
-  await test.post('/login', { email: 'incorrect@example.com', password: test.password })
+  await test.api(api.login, { email: 'incorrect@example.com', password: test.password })
     .catch(e => t.is(404, e.statusCode))
 })
 
@@ -109,7 +112,7 @@ test('login with incorrect password', async t => {
 
   await test.get('/login')
   t.plan(1)
-  await test.post('/login', { email: test.email, password: 'incorrect'})
+  await test.api(api.login, { email: test.email, password: 'incorrect'})
     .catch(e => t.is(404, e.statusCode))
 })
 
@@ -119,7 +122,7 @@ test('login with missing crumb', async t => {
 
   t.plan(1)
   test.crumb = undefined
-  await test.post('/login', { email: test.email, password: test.password })
+  await test.api(api.login, { email: test.email, password: test.password })
     .catch(e => t.is(403, e.statusCode))
 })
 
@@ -129,7 +132,7 @@ test('login with incorrect crumb', async t => {
 
   t.plan(1)
   test.crumb = test.getCrumb().replace(/./g, '1')
-  await test.post('/login', { email: test.email, password: test.password })
+  await test.api(api.login, { email: test.email, password: test.password })
     .catch(e => t.is(403, e.statusCode))
 })
 
@@ -151,7 +154,7 @@ test('posting to login while logged in gives error', async t => {
   const test = new Test()
   await test.whileLoggedIn()
   t.plan(1)
-  const reply = await test.post('/login', { email: 'some@example.com', password: 'incorrect' })
+  const reply = await test.api(api.login, { email: 'some@example.com', password: 'incorrect' })
     .catch(e => t.is(409, e.statusCode))
 })
 
@@ -159,7 +162,7 @@ test('posting to signup while logged in gives error', async t => {
   const test = new Test()
   await test.whileLoggedIn()
   t.plan(1)
-  const reply = await test.post('/signup', { email: 'some@example.com', password: 'incorrect' })
+  const reply = await test.api(api.signup, { email: 'some@example.com', password: 'incorrect' })
     .catch(e => t.is(409, e.statusCode))
 })
 
