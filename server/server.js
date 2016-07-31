@@ -9,6 +9,7 @@ import crumb from 'crumb'
 import hapiReactViews from 'hapi-react-views'
 import * as env from './env'
 import login from './login'
+import api_handler from './api_handler'
 import authBasic from 'hapi-auth-basic'
 import authCookie from 'hapi-auth-cookie'
 import User from './models/user'
@@ -51,7 +52,7 @@ server.register([
           if (!session || !session.related('user')) {
             return callback(null, false)
           }
-          callback(null, true)
+          callback(null, true, session.related('user'))
         })
         .catch(e => {
           request.log(['auth'], 'got error ' + e.toString())
@@ -83,6 +84,7 @@ server.register([
   })
 
   login(server)
+  api_handler(server)
 
   server.route({
     method: 'get',

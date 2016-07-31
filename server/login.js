@@ -9,6 +9,7 @@ import Session from './session'
 import crypto from 'crypto'
 import p from './p'
 import * as api from './api'
+import apiRoute from './api_route'
 
 function errorHandler(handler) {
   return function(request, reply) {
@@ -57,22 +58,6 @@ const apiLoginHandler = async function(request, reply) {
   const session = await Session.createForUser(user)
   request.cookieAuth.set({token: session.get('token')})
   reply({})
-}
-
-function apiRoute<In, Out>(
-  server: Server,
-  api: api.Api<In, Out>,
-  routeConfig: RouteConfig<In, Out>) {
-
-  const handler : any = function(req, res) {
-    return routeConfig.handler(req, res).catch(e => res(boom.wrap(e)))
-  }
-
-  server.route({
-    path: api.path,
-    method: api.method,
-    config: {...routeConfig, handler }
-  })
 }
 
 export default function login(server: Server ) {

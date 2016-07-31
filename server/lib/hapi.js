@@ -4,7 +4,7 @@ import hapi from 'hapi'
 type Method = 'get' | 'post' | 'put' | 'delete'
 
 export type Request<In> = {
-  auth: { isAuthenticated: boolean },
+  auth: { isAuthenticated: boolean, credentials: any },
   method: Method,
   payload: In,
   cookieAuth: {
