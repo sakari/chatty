@@ -1,7 +1,6 @@
 // @flow
 
-import {Server} from './lib/hapi'
-import type {RouteConfig, Handler, Request, Reply} from './lib/hapi'
+import type {Server} from './hapi'
 import boom from 'boom'
 import User from './models/user'
 import Message from './models/message'

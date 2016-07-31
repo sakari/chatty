@@ -3,8 +3,8 @@
 import hapi from 'hapi'
 type Method = 'get' | 'post' | 'put' | 'delete'
 
-export type Request<In> = {
-  auth: { isAuthenticated: boolean, credentials: any },
+export type Request<In, Auth> = {
+  auth: { isAuthenticated: boolean, credentials: Auth },
   method: Method,
   payload: In,
   cookieAuth: {
@@ -19,29 +19,38 @@ export type Reply<Out> = {
   redirect(to: string): any
 }
 
-export type Handler<In, Out> = (request: Request<In>, reply: Reply<Out>) => Promise<mixed>
+export type StaticHandler = { directory: { path: string, index: Array<string> }}
+export type ViewHandler = { view: string }
+export type FunctionHandler<In, Out, Auth> = (request: Request<In, Auth>, reply: Reply<Out>) => Promise<mixed>
 
-export type RouteConfig<In, Out> = {
+export type Handler<In, Out, Auth>
+  = FunctionHandler<In, Out, Auth>
+  | StaticHandler
+  | ViewHandler
+
+export type RouteConfig<In, Out, Auth> = {
   auth?: boolean | { strategies?: Array<string>, mode: 'try' },
   plugins?: { [plugin: string] : {}},
-  handler: Handler<In, Out>
+  handler: Handler<In, Out, Auth>
 }
 
-export type Route<In, Out> = {
+export type Route<In, Out, Auth> = {
   path: string,
   method: Method | Array<Method>,
-  config?: RouteConfig<In, Out>
+  config?: RouteConfig<In, Out, Auth>
 }
 
-class ServerFlow {
-  constructor(config?: {
-    debug?: {
-      request?: Array<string>,
-      server?: Array<string>
-    }
-  }) { throw new Error('dont make these plz') };
+type Opts = {
+  debug?: {
+    request?: Array<string>,
+    server?: Array<string>
+  }
+}
+
+export class Server<Auth> {
+  constructor(config?: Opts) { throw new Error('dont make these plz') };
   auth: any;
-  route(route: Route<*, *>) {};
+  route(route: Route<*, *, Auth>) {};
   connection: any;
   state: any;
   register: any;
@@ -50,4 +59,6 @@ class ServerFlow {
   log(tags: Array<string>, message: any, timestamp?: Date) {};
 }
 
-export const Server : Class<ServerFlow> = hapi.Server
+export function createServer<Auth>(opts?: Opts): Server<Auth> {
+  return new hapi.Server(opts)
+}

@@ -1,8 +1,7 @@
 // @flow
 
 import Bcrypt from 'bcrypt'
-import {Server} from './lib/hapi'
-import type {RouteConfig, Handler, Request, Reply} from './lib/hapi'
+import type {Server, RouteConfig, Handler, Request, Reply} from './hapi'
 import boom from 'boom'
 import User from './models/user'
 import Session from './session'
@@ -61,7 +60,6 @@ const apiLoginHandler = async function(request, reply) {
 }
 
 export default function login(server: Server ) {
-
   server.route({
     path: '/signup',
     method: 'get',
