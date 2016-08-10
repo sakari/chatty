@@ -26,3 +26,13 @@ test('post messages', async t => {
   t.deepEqual([newMessage], messages.messages)
 })
 
+test('messages are not visible to other users', async t => {
+  const test = new Session()
+  await test.whileLoggedIn()
+  await test.api(api.postMessage, {text: 'nnnnn'})
+
+  const other = new Session()
+  await other.whileLoggedIn()
+  t.deepEqual([], (await other.api(api.messages)).messages)
+})
+
