@@ -7,7 +7,7 @@ const crumb = document.querySelector('#csrf-token').getAttribute('content')
 
 function req(url: string, method: string, data: any): Promise<any> {
   return window.fetch(url, {
-    method: 'post',
+    method: method,
     body: JSON.stringify(data),
     credentials: 'same-origin',
     headers: {

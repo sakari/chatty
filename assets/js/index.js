@@ -19,11 +19,48 @@ class Main extends React.Component {
 }
 
 class All extends React.Component {
-  messages() {
-    return [{ id: 1 }, { id: 2 }]
+  state: {
+    messages: Array<api.Message>,
+    inputValue: string
   }
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      messages: [],
+      inputValue: ""
+    }
+  }
+  componentWillMount() {
+    this.loadMessages()
+  }
+
+  loadMessages() {
+    request.to(api.messages)
+      .then(response => {
+        this.setState({messages: response.messages})
+      })
+  }
+
+  sendMessage() {
+    if (this.state.inputValue !== '') {
+      request.to(api.postMessage, { text: this.state.inputValue })
+        .then(response => {
+          console.log(response)
+          this.setState({inputValue: ''})
+          this.loadMessages()
+        })
+    }
+  }
+
   render() {
-    return <div>{this.messages().map(m => <Link key={m.id} to={'/messages/' + m.id}>message {m.id}</Link>)}</div>
+    return <div>
+        <div>
+          {this.state.messages.map(m => <Link key={m.id} to={'/messages/' + m.id}>{m.text}</Link>)}
+        </div>
+        <input type="text" placeholder="Type your message here" value={this.state.inputValue} onChange={event => this.setState({inputValue: event.target.value})}/>
+        <button onClick={() => this.sendMessage()}>Send</button>
+      </div>
   }
 }
 

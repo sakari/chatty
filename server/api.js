@@ -38,7 +38,7 @@ export type Message = {
 
 const api = new Api('/api')
 
-export const messages : Api<{}, { messages: Array<Message>}> =
+export const messages : Api<void, { messages: Array<Message>}> =
   api.sub('/messages')
 
 export const postMessage : Api<{text: string}, Message> =

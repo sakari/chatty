@@ -22,6 +22,7 @@ test('post messages', async t => {
   const test = new Session()
   await test.whileLoggedIn()
   const newMessage = await test.api(api.postMessage, {text: 'new message'})
+  t.true(newMessage.text === 'new message')
   const messages = await test.api(api.messages)
   t.deepEqual([newMessage], messages.messages)
 })
