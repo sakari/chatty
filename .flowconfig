@@ -11,4 +11,5 @@ flowlibs
 index.js
 
 [options]
+module.name_mapper.extension='css'->'<PROJECT_ROOT>/css.js.flow'
 log.file=flowserver.log

@@ -8,6 +8,7 @@ export default class Default extends React.Component {
       <head>
         <meta charSet="utf-8"></meta>
         <meta content={this.props.crumb} id="csrf-token" />
+        <link rel="stylesheet" type="text/css" href="/assets/js/main.css"/>
         <title>Chat</title>
       </head>
       <body>

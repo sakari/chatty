@@ -2,6 +2,7 @@ npm-debug.log*
 node_modules/
 assets/js/bundle.js
 assets/js/bundle.js.map
+assets/js/main.css*
 dist/
 flowserver.log.old
 flowserver.log
