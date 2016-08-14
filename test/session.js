@@ -2,6 +2,7 @@
 
 import * as api from '../server/api'
 import request from 'request-promise-native'
+import {Map, List} from 'immutable'
 
 export default class Test {
   crumb: ?string
@@ -37,7 +38,12 @@ export default class Test {
     throw new Error('missing crumb')
   }
 
-  async api<In, Out>(api: api.Api<In, Out>, body?: In): Promise<Out> {
+  async api<queryt, payloadt, out>(api: api.Api<queryt, payloadt, out>, query: queryt, body: payloadt): Promise<out> {
+    const queryStr = Map(query || {})
+      .reduce((reduction, value, key) => reduction.push(encodeURIComponent(key) + '=' + encodeURIComponent(value)), List())
+      .join('&')
+
+    const urlWithQuery = api.path + (queryStr === '' ? '' : ('?' + queryStr))
     const opts = {
       ...this.opts(),
       resolveWithFullResponse: false,
@@ -46,7 +52,7 @@ export default class Test {
       json: true,
       body: body
     }
-   return await request(`http://localhost:8000${api.path}`, opts)
+   return await request(`http://localhost:8000${urlWithQuery}`, opts)
   }
 
   async get(path : string = '') {
@@ -62,7 +68,7 @@ export default class Test {
 
   async whileLoggedIn() {
     await this.get('/signup')
-    await this.api(api.signup, { email: this.email, password: this.password})
+    await this.api(api.signup, undefined, { email: this.email, password: this.password})
   }
 
   async withUser() {

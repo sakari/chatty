@@ -28,7 +28,7 @@ class Signup extends React.Component {
   }
 
   signup() {
-    request.to(api.signup, { email: this.state.email, password: this.state.password})
+    request.to(api.signup, undefined, { email: this.state.email, password: this.state.password})
       .then(response => {
         if (this.props.location.query && this.props.location.query.next) {
           window.location.href = this.props.location.query.next
@@ -59,7 +59,7 @@ class Login extends React.Component {
     this.state = { email: "", password: "", error: null }
   }
   login() {
-    request.to(api.login, { email: this.state.email, password: this.state.password})
+    request.to(api.login, undefined, { email: this.state.email, password: this.state.password})
       .then(response => {
         if (this.props.location.query && this.props.location.query.next) {
           window.location.href = this.props.location.query.next

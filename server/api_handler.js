@@ -8,9 +8,20 @@ import * as api from './api'
 import apiRoute from './api_route'
 
 const messagesHandler = async function(request, reply) {
-  const messages = await Message.collection()
-    .query({where: { group: 'group ' + request.auth.credentials.get('id')}})
-    .fetch()
+  const messages = await Message.collection().query(qb => {
+    qb.where({ group: 'group ' + request.auth.credentials.get('id')})
+    const query = request.query
+    if (query) {
+      const {before, limit} = query
+      if (before) {
+        qb.where('id', '<', Number(query.before))
+      }
+      if (limit) {
+        qb.limit(Number(query.limit))
+        qb.orderBy('id', 'desc')
+      }
+    }
+  }).fetch()
   reply({ messages: messages.map(m => ({
      id: m.get('id'),
      text: m.get('text'),

@@ -3,41 +3,43 @@
 import hapi from 'hapi'
 type Method = 'get' | 'post' | 'put' | 'delete'
 
-export type Request<In, Auth> = {
-  auth: { isAuthenticated: boolean, credentials: Auth },
+export type Request<query, payload, auth> = {
+  auth: { isAuthenticated: boolean, credentials: auth },
   method: Method,
-  payload: In,
+  query: query,
+  log: (scope: Array<string>, data: any) => void,
+  payload: payload,
   cookieAuth: {
     set: (session: {}) => void
   }
 }
 
-export type Reply<Out> = {
-  reppy: Out,
-  (m: (Out | Error)) : any,
+export type Reply<out> = {
+  reppy: out,
+  (m: (out | Error)) : any,
   view(view: string): any,
   redirect(to: string): any
 }
 
 export type StaticHandler = { directory: { path: string, index: Array<string> }}
 export type ViewHandler = { view: string }
-export type FunctionHandler<In, Out, Auth> = (request: Request<In, Auth>, reply: Reply<Out>) => Promise<mixed>
+export type FunctionHandler<query, payload, out, auth> = (request: Request<query, payload, auth>, reply: Reply<out>) => Promise<mixed>
 
-export type Handler<In, Out, Auth>
-  = FunctionHandler<In, Out, Auth>
+export type Handler<query, payload, out, auth>
+  = FunctionHandler<query, payload, out, auth>
   | StaticHandler
   | ViewHandler
 
-export type RouteConfig<In, Out, Auth> = {
+export type RouteConfig<query, payload, out, auth> = {
   auth?: boolean | { strategies?: Array<string>, mode: 'try' },
   plugins?: { [plugin: string] : {}},
-  handler: Handler<In, Out, Auth>
+  handler: Handler<query, payload, out, auth>
 }
 
-export type Route<In, Out, Auth> = {
+export type Route<query, payload, out, auth> = {
   path: string,
   method: Method | Array<Method>,
-  config?: RouteConfig<In, Out, Auth>
+  config?: RouteConfig<query, payload, out, auth>
 }
 
 type Opts = {
@@ -50,7 +52,7 @@ type Opts = {
 export class Server<Auth> {
   constructor(config?: Opts) { throw new Error('dont make these plz') };
   auth: any;
-  route(route: Route<*, *, Auth>) {};
+  route(route: Route<*, *, *, Auth>) {};
   connection: any;
   state: any;
   register: any;

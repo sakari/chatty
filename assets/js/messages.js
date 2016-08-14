@@ -37,7 +37,7 @@ class FromLatest extends Loader{
       return this.loading
     }
     this.loading = Promise.resolve(t => t)
-    return request.to(api.messages)
+    return request.to(api.messages, {})
       .then(response => collection => {
         const currentPosition = collection.messages.findKey(row => row.type === 'loader' && row.loader === this)
         if (currentPosition == null) {
@@ -160,7 +160,7 @@ export default class Messages extends React.Component {
 
   sendMessage() {
     if (this.state.inputValue !== '') {
-      request.to(api.postMessage, { text: this.state.inputValue })
+      request.to(api.postMessage, undefined, { text: this.state.inputValue })
         .then(response => {
           console.log(response)
           this.setState({
