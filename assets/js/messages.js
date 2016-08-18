@@ -25,11 +25,17 @@ class Loader {
   }
 }
 
-class FromLatest extends Loader{
+class BackwardLoader extends Loader{
   loading: Promise<(coll: MessageCollection) => MessageCollection>
+  loadLimit = 10
+  before: ?number
 
-  constructor() {
+  constructor(opts?: { before?: number}) {
     super()
+    if (opts) {
+      const {before} = opts
+      this.before = before
+    }
   }
 
   load() {
@@ -37,13 +43,27 @@ class FromLatest extends Loader{
       return this.loading
     }
     this.loading = Promise.resolve(t => t)
-    return request.to(api.messages, {})
+    let params = { limit: this.loadLimit }
+    if (this.before != null) {
+      params = { ...params, before: this.before }
+    }
+    return request.to(api.messages, params)
       .then(response => collection => {
         const currentPosition = collection.messages.findKey(row => row.type === 'loader' && row.loader === this)
         if (currentPosition == null) {
           return collection
         }
-        return collection.splice(currentPosition, 1, List(response.messages.map(msg => ({ type: 'message', msg }))))
+        let newMessages = List(response.messages.map(msg => ({ type: 'message', msg })))
+        if (newMessages.size >= this.loadLimit) {
+          const oldest = newMessages.last()
+          if (oldest.type === 'message') {
+            newMessages = newMessages.push({
+              type: 'loader',
+              loader: new BackwardLoader({before: oldest.msg.id})
+            })
+          }
+        }
+        return collection.splice(currentPosition, 1, newMessages)
       })
   }
 }
@@ -56,7 +76,7 @@ class MessageCollection {
   observer: (sink: (coll: MessageCollection) => MessageCollection) => mixed
 
   constructor(opts: { messages?: Rows, observer: (sink: (coll: MessageCollection) => MessageCollection) => mixed}) {
-    this.messages = opts.messages || List.of({ type: 'loader', loader: new FromLatest()})
+    this.messages = opts.messages || List.of({ type: 'loader', loader: new BackwardLoader()})
     this.size = this.messages.size
     this.observer = opts.observer
   }
@@ -162,7 +182,6 @@ export default class Messages extends React.Component {
     if (this.state.inputValue !== '') {
       request.to(api.postMessage, undefined, { text: this.state.inputValue })
         .then(response => {
-          console.log(response)
           this.setState({
             inputValue: '',
             messages: this.state.messages.splice(
