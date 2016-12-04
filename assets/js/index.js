@@ -5,13 +5,6 @@ import ReactDOM from 'react-dom'
 import { IndexRoute, Router, Route, Link, browserHistory } from 'react-router'
 import * as request from './request'
 import * as api from '../../server/api'
-import Messages from './messages'
-
-class Message extends React.Component {
-  render() {
-    return <div>Message {this.props.params.messageId}</div>
-  }
-}
 
 class Main extends React.Component {
   render() {
@@ -84,14 +77,19 @@ class Login extends React.Component {
   }
 }
 
+class Ide extends React.Component {
+  render() {
+    return <div>ide</div>
+  }
+}
+
 class App extends React.Component {
   render() {
     return <Router history={browserHistory}>
       <Route path="/" component={Main}>
-        <IndexRoute component={Messages}/>
+        <IndexRoute component={Ide}/>
         <Route path="login" component={Login} />
         <Route path="signup" component={Signup} />
-        <Route path="messages/:messageId" component={Message} />
       </Route>
     </Router>
   }
