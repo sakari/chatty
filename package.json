@@ -12,8 +12,9 @@
     "flow": "flow",
     "build": "parallelshell 'flow' 'npm run build-client' 'npm run build-server'",
     "create-migration": "babel-node node_modules/.bin/knex --knexfile server/knexfile.js migrate:make",
-    "create-models": "rm -f server/models/* && mkdir -p server/models && babel-node node_modules/.bin/bookshelf-flow --connection postgresql://localhost/chatdb --tables users,sessions,messages --out server/models --bookshelf '../bookshelf'",
-    "migrate": "babel-node node_modules/.bin/knex --knexfile server/knexfile.js migrate:latest && npm run create-models"
+    "create-models": "rm -f server/models/* && mkdir -p server/models && babel-node node_modules/.bin/bookshelf-flow --connection postgresql://localhost/chatdb --tables users,sessions --out server/models --bookshelf '../bookshelf'",
+    "migrate": "babel-node node_modules/.bin/knex --knexfile server/knexfile.js migrate:latest && npm run create-models",
+    "rollback": "babel-node node_modules/.bin/knex --knexfile server/knexfile.js migrate:rollback"
   },
   "author": "sakariij@gmail.com",
   "license": "MIT",
@@ -40,6 +41,7 @@
     "hapi-react-views": "^9.0.0",
     "immutable": "^3.8.1",
     "inert": "^4.0.0",
+    "knex": "^0.12.6",
     "nodemon": "^1.9.2",
     "parallelshell": "^2.0.0",
     "pg": "^6.0.1",
