@@ -1,34 +1,39 @@
 // @flow
 
 export class Component {
-  componentEntity: Entity
+  entity: Entity
 
   constructor(e: Entity) {
-    this.componentEntity = e
-    e.entityAddComponent(this)
+    this.entity = e
+    e.add(this)
   }
 
-  componentUpdate() {}
+  component<C>(cc: Class<C>): C {
+    return this.entity.component(cc)
+  }
+
+  update() {}
 }
 
 export class Entity {
-  entityComponents: Component[]
-  entityAddComponent(c: Component) {
-    this.entityComponents.push(c)
+  components: Component[]
+  add(c: Component) {
+    this.components.push(c)
   }
 
-  entityGetComponent<C>(cc: Class<C>): ?C {
-    for(var i = 0; i <= this.entityComponents.length; i++) {
-      const c = this.entityComponents[i]
+  component<C>(cc: Class<C>): C {
+    for(var i = 0; i <= this.components.length; i++) {
+      const c = this.components[i]
       if ( c && c instanceof cc ){
         return c
       }
     }
-    return null
+    const x: any = cc
+    throw new Error('Could not find component: ' + x.name)
   }
 
-  entityUpdate() {
-    this.entityComponents.forEach(c => c.componentUpdate())
+  update() {
+    this.components.forEach(c => c.update())
   }
 }
 
@@ -57,10 +62,23 @@ export class Move extends Component {
   }
 
   componentUpdate() {
-    const t = this.componentEntity.entityGetComponent(Translation)
-    if (t) {
-      t.props.x += this.props.amount
-    }
+    const t = this.component(Translation)
+    t.props.x += this.props.amount
+  }
+}
+
+export interface Draw {
+  rect: (left: number, right: number, width: number, height: number) => mixed
+}
+
+export class Render extends Component {
+  render(draw: Draw) {}
+}
+
+export class Rect extends Render {
+  render(draw: Draw) {
+    const t = this.component(Translation)
+    return draw.rect(t.props.x, t.props.y, 0, 20, 10)
   }
 }
 
