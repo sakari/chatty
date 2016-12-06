@@ -16,7 +16,7 @@ export class Component {
 }
 
 export class Entity {
-  components: Component[]
+  components: Component[] = []
   add(c: Component) {
     this.components.push(c)
   }
@@ -68,7 +68,7 @@ export class Move extends Component {
 }
 
 export interface Draw {
-  rect: (left: number, right: number, width: number, height: number) => mixed
+  +rect: (x: number, y: number, width: number, height: number) => void
 }
 
 export class Render extends Component {
@@ -78,15 +78,15 @@ export class Render extends Component {
 export class Rect extends Render {
   render(draw: Draw) {
     const t = this.component(Translation)
-    return draw.rect(t.props.x, t.props.y, 0, 20, 10)
+    draw.rect(t.props.x, t.props.y, 20, 10)
   }
 }
 
-class MovingThing extends Entity {
+export class Thing extends Entity {
   constructor() {
     super()
-    const translation = new Translation(this, { x: 0, y: 0, z: 0, rotation: 0})
-    new Move(this, { amount: 5 })
+    new Translation(this, { x: 0, y: 0, z: 0, rotation: 0})
+    new Rect(this)
   }
 }
 

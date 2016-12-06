@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 import { IndexRoute, Router, Route, Link, browserHistory } from 'react-router'
 import * as request from './request'
 import * as api from '../../server/api'
+import Ide from './ide'
 
 class Main extends React.Component {
   render() {
@@ -74,12 +75,6 @@ class Login extends React.Component {
       <button onClick={() => this.login(this.state)}>Login</button>
       <Link to={{ pathname: "/signup", query: this.props.location.query }}>Signup</Link>
     </div>
-  }
-}
-
-class Ide extends React.Component {
-  render() {
-    return <div>ide</div>
   }
 }
 
