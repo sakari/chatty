@@ -1,10 +1,13 @@
 // @flow
 
-export class Component {
+export class Component<Props: Object> {
   entity: Entity
 
-  constructor(e: Entity) {
+  props: Props
+
+  constructor(e: Entity, props: Props) {
     this.entity = e
+    this.props = props
     e.add(this)
   }
 
@@ -12,12 +15,16 @@ export class Component {
     return this.entity.component(cc)
   }
 
+  set(props: $Supertype<Props>) {
+    this.props = {...this.props, props }
+  }
+
   update() {}
 }
 
 export class Entity {
-  components: Component[] = []
-  add(c: Component) {
+  components: Component<*>[] = []
+  add(c: Component<*>) {
     this.components.push(c)
   }
 
@@ -42,33 +49,15 @@ export class Entity {
   }
 }
 
-export class Translation extends Component {
-  props: {
-    x: number,
-    y: number,
-    z: number,
-    rotation: number
-  }
+export class Translation extends Component<{
+  x: number,
+  y: number,
+  z: number,
+  rotation: number
+}> {
 
   constructor(e: Entity) {
-    super(e)
-    this.props = { x: 0, y: 0, z: 0, rotation: 0}
-  }
-}
-
-export class Move extends Component {
-  props: {
-    amount: number
-  }
-
-  constructor(e: Entity) {
-    super(e)
-    this.props = { amount: 0 }
-  }
-
-  componentUpdate() {
-    const t = this.component(Translation)
-    t.props.x += this.props.amount
+    super(e, { x: 0, y: 0, z: 0, rotation: 0})
   }
 }
 
@@ -79,7 +68,7 @@ export interface Draw {
 type MouseEvent = { movementX : number, movementY: number}
 type ClientMouseEvent = { clientX: number, clientY: number }
 type MouseHandler = (e: MouseEvent) => void
-export class Mouse extends Component {
+export class Mouse extends Component<{}> {
   listeners: {
     onMouseDown: Array<MouseHandler>,
     onMouseUp: Array<MouseHandler>,
@@ -89,7 +78,7 @@ export class Mouse extends Component {
   previousEvent: ?ClientMouseEvent
 
   constructor(e: Entity) {
-    super(e)
+    super(e, {})
     this.listeners = {
       onMouseDown: [],
       onMouseUp: [],
@@ -123,11 +112,11 @@ export class Mouse extends Component {
   }
 }
 
-export class Drag extends Component {
+export class Drag extends Component<{}> {
   state: 'up' | 'down'
 
   constructor(e: Entity) {
-    super(e)
+    super(e, {})
     this.state = 'up'
     const mouse = this.component(Mouse)
     mouse.onMouseDown(this.down.bind(this))
@@ -146,17 +135,20 @@ export class Drag extends Component {
   move(e: MouseEvent) {
     if (this.state === 'down') {
       const t = this.component(Translation)
-      t.props.x += e.movementX
-      t.props.y += e.movementY
+      this.set({x: t.props.x + e.movementX, y: t.props.y + e.movementY })
     }
   }
 }
 
-export class Render extends Component {
+export class Render<P: Object> extends Component<P> {
   render(draw: Draw) {}
 }
 
-export class Rect extends Render {
+export class Rect extends Render<{}> {
+  constructor(e: Entity) {
+    super(e, {})
+  }
+
   render(draw: Draw) {
     const t = this.component(Translation)
     draw.rect(this.entity, t.props.x, t.props.y, 20, 10)

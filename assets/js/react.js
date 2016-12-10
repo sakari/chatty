@@ -22,7 +22,7 @@ class ReactSvgDraw {
   }
 }
 
-export function render(rs: Render[]) {
+export function render(rs: Render<*>[]) {
   const elements = []
   const draw = new ReactSvgDraw(elements)
   rs.forEach(r => r.render(draw))
