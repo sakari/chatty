@@ -5,11 +5,13 @@ import * as entity from './entity'
 
 export default class Ide extends React.Component {
   state: {
-    e: entity.Thing
+    e: entity.Thing,
+    engine: entity.Engine
   }
   constructor() {
     super()
-    this.state = {e: new entity.Thing() }
+    const engine = new entity.Engine()
+    this.state = {engine: engine, e: new entity.Thing(engine) }
     this.state.e.onUpdated(() => this.forceUpdate())
   }
 

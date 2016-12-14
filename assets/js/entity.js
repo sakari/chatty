@@ -23,10 +23,24 @@ export class Component<Props: Object> {
   update() {}
 }
 
+export class Engine {
+  identifiers: number = 0
+
+  newIdentity() {
+    return this.identifiers++
+  }
+}
+
 export class Entity {
+  identity: number
+
   components: Component<any>[] = []
   add<P: Object>(c: Component<P>) {
     this.components.push(c)
+  }
+
+  constructor(engine: Engine) {
+    this.identity = engine.newIdentity()
   }
 
   maybeComponent<C>(cc: Class<C>): ?C {
@@ -171,8 +185,8 @@ export class Rect extends Render<{}> {
 }
 
 export class Thing extends Entity {
-  constructor() {
-    super()
+  constructor(e: Engine) {
+    super(e)
     new Translation(this, { x: 10, y: 0, z: 0, rotation: 0})
     new Rect(this)
     new Mouse(this)
