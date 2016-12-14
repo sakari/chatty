@@ -4,9 +4,17 @@ import {render} from './react'
 import * as entity from './entity'
 
 export default class Ide extends React.Component {
+  state: {
+    e: entity.Thing
+  }
+  constructor() {
+    super()
+    this.state = {e: new entity.Thing() }
+    this.state.e.onUpdated(() => this.forceUpdate())
+  }
+
   render() {
-    const e = new entity.Thing()
-    const rs = [e.component(entity.Render)]
+    const rs = [this.state.e.component(entity.Render)]
     return render(rs)
   }
 }

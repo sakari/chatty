@@ -16,15 +16,16 @@ export class Component<Props: Object> {
   }
 
   set(props: $Supertype<Props>) {
-    this.props = {...this.props, props }
+    this.props = {...this.props, ...props }
+    this.entity.listeners.forEach(f => f(this.entity))
   }
 
   update() {}
 }
 
 export class Entity {
-  components: Component<*>[] = []
-  add(c: Component<*>) {
+  components: Component<any>[] = []
+  add<P: Object>(c: Component<P>) {
     this.components.push(c)
   }
 
@@ -44,8 +45,10 @@ export class Entity {
     throw new Error('Could not find component: ' + x.name)
   }
 
-  update() {
-    this.components.forEach(c => c.update())
+  listeners: Array<(e: Entity) => void> = []
+
+  onUpdated(fn: (e: Entity) => void) {
+    this.listeners.push(fn)
   }
 }
 
@@ -75,7 +78,10 @@ export class Mouse extends Component<{}> {
     onMouseMove: Array<MouseHandler>
   }
 
-  previousEvent: ?ClientMouseEvent
+  previousPosition: {
+    clientX: number,
+    clientY: number
+  }
 
   constructor(e: Entity) {
     super(e, {})
@@ -99,11 +105,20 @@ export class Mouse extends Component<{}> {
   }
 
   hook(eventTag: 'up' | 'down' | 'move', event: ClientMouseEvent ) {
-    if (!this.previousEvent) this.previousEvent = event
+    if (!this.previousPosition)
+      this.previousPosition = {
+        clientX: event.clientX,
+        clientY: event.clientY
+      }
     const e : MouseEvent = {
-      movementX: this.previousEvent.clientX - event.clientX,
-      movementY: this.previousEvent.clientY - event.clientY
+      movementX: event.clientX - this.previousPosition.clientX,
+      movementY: event.clientY - this.previousPosition.clientY
     }
+    if (eventTag === 'move')
+      this.previousPosition = {
+        clientX: event.clientX,
+        clientY: event.clientY
+      }
     switch (eventTag) {
       case 'up': this.listeners.onMouseUp.forEach(f => f(e)); break
       case 'down': this.listeners.onMouseDown.forEach(f => f(e)); break
@@ -135,7 +150,7 @@ export class Drag extends Component<{}> {
   move(e: MouseEvent) {
     if (this.state === 'down') {
       const t = this.component(Translation)
-      this.set({x: t.props.x + e.movementX, y: t.props.y + e.movementY })
+      t.set({x: t.props.x + e.movementX, y: t.props.y + e.movementY })
     }
   }
 }
@@ -158,7 +173,7 @@ export class Rect extends Render<{}> {
 export class Thing extends Entity {
   constructor() {
     super()
-    new Translation(this, { x: 0, y: 0, z: 0, rotation: 0})
+    new Translation(this, { x: 10, y: 0, z: 0, rotation: 0})
     new Rect(this)
     new Mouse(this)
     new Drag(this)

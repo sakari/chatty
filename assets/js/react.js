@@ -18,6 +18,7 @@ class ReactSvgDraw {
   }
   rect(entity: Entity, x: number, y: number, width: number, height: number) {
     const m = entity.maybeComponent(Mouse)
+    console.log(x, y)
     this.elements.push(<rect x={x} y={y} width={width} height={height} {...mouseHooks(m)}/>)
   }
 }
@@ -27,9 +28,9 @@ export function render(rs: Render<*>[]) {
   const draw = new ReactSvgDraw(elements)
   rs.forEach(r => r.render(draw))
   return <svg
-    width="120"
-    height="120"
-    viewBox="0 0 120 120"
+    width="600"
+    height="600"
+    viewBox="0 0 600 600"
     xmlns="http://www.w3.org/2000/svg">
     {elements}
   </svg>
