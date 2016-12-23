@@ -1,5 +1,7 @@
 // @flow
 
+import Listener from './listener'
+
 export class Component<Props: Object> {
   entity: Entity
 
@@ -25,14 +27,32 @@ export class Component<Props: Object> {
 
 export class Engine {
   identifiers: number = 0
+  entities: Array<Entity> = []
 
   newIdentity() {
     return this.identifiers++
+  }
+
+  scenes() : Array<Scene> {
+    const memo = []
+    for(var i = 0; i < this.entities.length; i++) {
+      const e = this.entities[i]
+      if (e instanceof Scene) {
+        memo.push(e)
+      }
+    }
+    return memo
+  }
+
+  addEntity(entity: Entity) {
+    this.entities.push(entity)
   }
 }
 
 export class Entity {
   identity: number
+  engine: Engine
+  scene: ?Scene = null
 
   components: Component<any>[] = []
   add<P: Object>(c: Component<P>) {
@@ -41,6 +61,8 @@ export class Entity {
 
   constructor(engine: Engine) {
     this.identity = engine.newIdentity()
+    this.engine = engine
+    this.engine.addEntity(this)
   }
 
   maybeComponent<C>(cc: Class<C>): ?C {
@@ -66,6 +88,25 @@ export class Entity {
   }
 }
 
+export class Container extends Component<{}> {
+  constructor(e: Entity) {
+    super(e, {})
+  }
+
+  entities: Array<Entity> = []
+
+  addEntity(e: Entity) {
+    this.entities.push(e)
+  }
+
+  components<C>(cc: Class<C>): Array<C> {
+    return this
+      .entities
+      .map(e => e.maybeComponent(cc))
+      .reduce((m, c) => c ? [...m, c] : m, [])
+  }
+}
+
 export class Translation extends Component<{
   x: number,
   y: number,
@@ -79,6 +120,7 @@ export class Translation extends Component<{
 }
 
 export interface Draw {
+  +scene: (e: Entity, width: number, height: number, children: Array<Render<*>>) => void,
   +rect: (e: Entity, x: number, y: number, width: number, height: number) => void
 }
 
@@ -86,11 +128,9 @@ type MouseEvent = { movementX : number, movementY: number}
 type ClientMouseEvent = { clientX: number, clientY: number }
 type MouseHandler = (e: MouseEvent) => void
 export class Mouse extends Component<{}> {
-  listeners: {
-    onMouseDown: Array<MouseHandler>,
-    onMouseUp: Array<MouseHandler>,
-    onMouseMove: Array<MouseHandler>
-  }
+  onMouseDown: Listener<MouseEvent>
+  onMouseUp: Listener<MouseEvent>
+  onMouseMove: Listener<MouseEvent>
 
   previousPosition: {
     clientX: number,
@@ -99,23 +139,9 @@ export class Mouse extends Component<{}> {
 
   constructor(e: Entity) {
     super(e, {})
-    this.listeners = {
-      onMouseDown: [],
-      onMouseUp: [],
-      onMouseMove: []
-    }
-  }
-
-  onMouseDown( m: MouseHandler) {
-    this.listeners.onMouseDown.push(m)
-  }
-
-  onMouseUp(m: MouseHandler) {
-    this.listeners.onMouseUp.push(m)
-  }
-
-  onMouseMove( m: MouseHandler) {
-    this.listeners.onMouseMove.push(m)
+    this.onMouseDown = new Listener()
+    this.onMouseUp = new Listener()
+    this.onMouseMove = new Listener()
   }
 
   hook(eventTag: 'up' | 'down' | 'move', event: ClientMouseEvent ) {
@@ -134,9 +160,9 @@ export class Mouse extends Component<{}> {
         clientY: event.clientY
       }
     switch (eventTag) {
-      case 'up': this.listeners.onMouseUp.forEach(f => f(e)); break
-      case 'down': this.listeners.onMouseDown.forEach(f => f(e)); break
-      case 'move': this.listeners.onMouseMove.forEach(f => f(e)); break
+      case 'up': this.onMouseUp.trigger(e); break
+      case 'down': this.onMouseDown.trigger(e); break
+      case 'move': this.onMouseMove.trigger(e); break
     }
   }
 }
@@ -148,17 +174,25 @@ export class Drag extends Component<{}> {
     super(e, {})
     this.state = 'up'
     const mouse = this.component(Mouse)
-    mouse.onMouseDown(this.down.bind(this))
-    mouse.onMouseUp(this.up.bind(this))
-    mouse.onMouseMove(this.move.bind(this))
+    mouse.onMouseDown.on(this, this.down)
   }
 
   up() {
-    this.state = 'up'
+    const scene = this.entity.scene
+    if (this.state !== 'up' && scene) {
+      this.state = 'up'
+      scene.component(Mouse).onMouseUp.off(this)
+      scene.component(Mouse).onMouseMove.off(this)
+    }
   }
 
   down() {
-    this.state = 'down'
+    const scene = this.entity.scene
+    if (this.state !== 'down' && scene) {
+      this.state = 'down'
+      scene.component(Mouse).onMouseUp.on(this, this.up)
+      scene.component(Mouse).onMouseMove.on(this, this.move)
+    }
   }
 
   move(e: MouseEvent) {
@@ -181,6 +215,30 @@ export class Rect extends Render<{}> {
   render(draw: Draw) {
     const t = this.component(Translation)
     draw.rect(this.entity, t.props.x, t.props.y, 20, 10)
+  }
+}
+
+export class ContainerRender extends Render<{}> {
+  constructor(e: Entity) {
+    super(e, {})
+  }
+
+  render(draw: Draw) {
+    draw.scene(this.entity, 600, 600, this.entity.component(Container).components(Render))
+  }
+}
+
+export class Scene extends Entity {
+  constructor(e: Engine) {
+    super(e)
+    new Mouse(this)
+    new Container(this)
+    new ContainerRender(this)
+  }
+
+  addEntity(e: Entity) {
+    this.component(Container).addEntity(e)
+    e.scene = this
   }
 }
 

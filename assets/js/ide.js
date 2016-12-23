@@ -1,22 +1,23 @@
 // @flow
+
 import React from 'react'
 import {render} from './react'
-import * as entity from './entity'
+import {Engine, Scene, Thing} from './entity'
 
 export default class Ide extends React.Component {
   state: {
-    e: entity.Thing,
-    engine: entity.Engine
+    engine: Engine
   }
   constructor() {
     super()
-    const engine = new entity.Engine()
-    this.state = {engine: engine, e: new entity.Thing(engine) }
-    this.state.e.onUpdated(() => this.forceUpdate())
+    const engine = new Engine()
+    const scene = new Scene(engine)
+    const thing = new Thing(engine)
+    scene.addEntity(thing)
+    this.state = {engine: engine}
   }
 
   render() {
-    const rs = [this.state.e.component(entity.Render)]
-    return render(rs)
+    return render(this.state.engine)
   }
 }
