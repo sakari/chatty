@@ -7,7 +7,8 @@ function mouseHooks(mouse: ?Mouse) {
   return  {
     onMouseDown: (e: SyntheticMouseEvent) => mouse ? mouse.hook('down', e) : null,
     onMouseUp: (e: SyntheticMouseEvent) => mouse ? mouse.hook('up', e) : null,
-    onMouseMove: (e: SyntheticMouseEvent) => mouse ? mouse.hook('move', e) : null
+    onMouseMove: (e: SyntheticMouseEvent) => mouse ? mouse.hook('move', e) : null,
+    onMouseLeave: (e: SyntheticMouseEvent) => mouse ? mouse.hook('leave', e) : null
   }
 }
 

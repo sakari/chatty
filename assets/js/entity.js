@@ -131,6 +131,7 @@ export class Mouse extends Component<{}> {
   onMouseDown: Listener<MouseEvent>
   onMouseUp: Listener<MouseEvent>
   onMouseMove: Listener<MouseEvent>
+  onMouseLeave: Listener<MouseEvent>
 
   previousPosition: {
     clientX: number,
@@ -142,9 +143,10 @@ export class Mouse extends Component<{}> {
     this.onMouseDown = new Listener()
     this.onMouseUp = new Listener()
     this.onMouseMove = new Listener()
+    this.onMouseLeave = new Listener()
   }
 
-  hook(eventTag: 'up' | 'down' | 'move', event: ClientMouseEvent ) {
+  hook(eventTag: 'up' | 'down' | 'move' | 'leave', event: ClientMouseEvent ) {
     if (!this.previousPosition)
       this.previousPosition = {
         clientX: event.clientX,
@@ -163,6 +165,7 @@ export class Mouse extends Component<{}> {
       case 'up': this.onMouseUp.trigger(e); break
       case 'down': this.onMouseDown.trigger(e); break
       case 'move': this.onMouseMove.trigger(e); break
+      case 'leave': this.onMouseLeave.trigger(e); break
     }
   }
 }
@@ -181,8 +184,10 @@ export class Drag extends Component<{}> {
     const scene = this.entity.scene
     if (this.state !== 'up' && scene) {
       this.state = 'up'
-      scene.component(Mouse).onMouseUp.off(this)
-      scene.component(Mouse).onMouseMove.off(this)
+      const mouse = scene.component(Mouse)
+      mouse.onMouseUp.off(this)
+      mouse.onMouseMove.off(this)
+      mouse.onMouseLeave.off(this)
     }
   }
 
@@ -190,8 +195,10 @@ export class Drag extends Component<{}> {
     const scene = this.entity.scene
     if (this.state !== 'down' && scene) {
       this.state = 'down'
-      scene.component(Mouse).onMouseUp.on(this, this.up)
-      scene.component(Mouse).onMouseMove.on(this, this.move)
+      const mouse = scene.component(Mouse)
+      mouse.onMouseUp.on(this, this.up)
+      mouse.onMouseMove.on(this, this.move)
+      mouse.onMouseLeave.on(this, this.up)
     }
   }
 
