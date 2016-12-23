@@ -14,6 +14,7 @@ export default class Ide extends React.Component {
     const scene = new Scene(engine)
     const thing = new Thing(engine)
     scene.addEntity(thing)
+    console.log(thing.validate())
     this.state = {engine: engine}
   }
 

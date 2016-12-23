@@ -1,10 +1,12 @@
 // @flow
 
 import Listener from './listener'
+import * as schema from './schema'
 
 export class Component<Props: Object> {
   entity: Entity
 
+  static schema = new schema.Obj
   props: Props
 
   constructor(e: Entity, props: Props) {
@@ -20,6 +22,18 @@ export class Component<Props: Object> {
   set(props: $Supertype<Props>) {
     this.props = {...this.props, ...props }
     this.entity.listeners.forEach(f => f(this.entity))
+  }
+
+  validate() {
+    const c = this.getClass()
+    if (c) {
+      return c.schema.validate(this.props)
+    }
+    return []
+  }
+
+  getClass() {
+    return Component
   }
 
   update() {}
@@ -86,6 +100,14 @@ export class Entity {
   onUpdated(fn: (e: Entity) => void) {
     this.listeners.push(fn)
   }
+
+  validate() {
+    const errors = []
+    for(var i = 0; i < this.components.length; i++) {
+      errors.push(...this.components[i].validate())
+    }
+    return errors
+  }
 }
 
 export class Container extends Component<{}> {
@@ -105,6 +127,10 @@ export class Container extends Component<{}> {
       .map(e => e.maybeComponent(cc))
       .reduce((m, c) => c ? [...m, c] : m, [])
   }
+
+  getClass() {
+    return Container
+  }
 }
 
 export class Translation extends Component<{
@@ -114,8 +140,19 @@ export class Translation extends Component<{
   rotation: number
 }> {
 
+  static schema = new schema.Tree({
+    x: new schema.Number,
+    y: new schema.Number,
+    z: new schema.Number,
+    rotation: new schema.Number
+  })
+
   constructor(e: Entity) {
     super(e, { x: 0, y: 0, z: 0, rotation: 0})
+  }
+
+  getClass() {
+    return Translation
   }
 }
 
@@ -136,6 +173,10 @@ export class Mouse extends Component<{}> {
   previousPosition: {
     clientX: number,
     clientY: number
+  }
+
+  getClass() {
+    Mouse
   }
 
   constructor(e: Entity) {
@@ -172,6 +213,10 @@ export class Mouse extends Component<{}> {
 
 export class Drag extends Component<{}> {
   state: 'up' | 'down'
+
+  getClass() {
+    return Drag
+  }
 
   constructor(e: Entity) {
     super(e, {})
@@ -211,10 +256,18 @@ export class Drag extends Component<{}> {
 }
 
 export class Render<P: Object> extends Component<P> {
+  getClass() {
+    return Render
+  }
+
   render(draw: Draw) {}
 }
 
 export class Rect extends Render<{}> {
+  getClass() {
+    return Rect
+  }
+
   constructor(e: Entity) {
     super(e, {})
   }
@@ -226,6 +279,10 @@ export class Rect extends Render<{}> {
 }
 
 export class ContainerRender extends Render<{}> {
+  getClass() {
+    return ContainerRender
+  }
+
   constructor(e: Entity) {
     super(e, {})
   }
