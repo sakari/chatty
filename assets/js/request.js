@@ -4,7 +4,11 @@
 import type {Api} from '../../server/api'
 import {Map, List} from 'immutable'
 
-const crumb = document.querySelector('#csrf-token').getAttribute('content')
+const csrfTokenElement = document.querySelector('#csrf-token')
+if (!csrfTokenElement) {
+  throw new Error('missing #csrf-token in page')
+}
+const crumb = csrfTokenElement.getAttribute('content')
 
 function req(url: string, method: string, query, payload): Promise<any> {
   const queryStr = Map(query || {})
