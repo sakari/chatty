@@ -36,9 +36,9 @@ export class Obj extends Prop {
 }
 
 export class Tree extends Prop {
-  tree: {[string]: Prop}
+  tree: Array<{[string]: Prop}>
 
-  constructor(tree: {[string]: Prop}) {
+  constructor(tree: [{[string]: Prop}]) {
     super()
     this.tree = tree
   }
@@ -48,11 +48,12 @@ export class Tree extends Prop {
       return [this.error(n, 'is not an object')]
     }
     const errors = []
-    for(var key in n) {
-      if (!this.tree[key]) {
+    for(var i = 0; i < this.tree.length; i++) {
+      const key = Object.keys(this.tree[i])[0]
+      if (n[key] === undefined) {
         errors.push(this.error(null, 'missing value', [key]))
       } else {
-        this.tree[key].validate(n[key])
+        this.tree[i][key].validate(n[key])
           .forEach(e => {
             errors.push({...e, path: [key, ...e.path]})
           })

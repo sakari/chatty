@@ -28,7 +28,12 @@ class TreeEditor extends React.Component {
     this.props.onSet({...this.props.value, [key]: value})
   }
 
-  renderKey(key: string, prop: schema.Prop, value: any) {
+  renderKey(i: number) {
+    const entry = this.props.schema.tree[i]
+    const key = Object.keys(entry)[0]
+    const value = this.props.value[key]
+    const prop = entry[key]
+
     if (prop instanceof schema.Tree) {
       return <TreeEditor schema={prop} value={value} onSet={n => this.set(key, n)}/>
     } else if (prop instanceof schema.Number) {
@@ -39,8 +44,11 @@ class TreeEditor extends React.Component {
 
   renderKeys() {
     const keys = []
-    for(var i in this.props.schema.tree) {
-      keys.push(<li><div>{i}</div>{this.renderKey(i, this.props.schema.tree[i], this.props.value[i])}</li>)
+    for(var i = 0; i < this.props.schema.tree.length; i++) {
+      keys.push(<li>
+        <div>{i}</div>
+        {this.renderKey(i)}
+      </li>)
     }
     return keys
   }
