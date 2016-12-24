@@ -30,19 +30,28 @@ class ReactSvgDraw {
 
   rect(entity: Entity, x: number, y: number, width: number, height: number) {
     const m = entity.maybeComponent(Mouse)
-    this.elements.push(<rect x={x - width / 2} y={y - height / 2} width={width} height={height} {...mouseHooks(m)}/>)
+    this.elements.push(<rect
+      key={this.elements.length}
+      x={x - width / 2}
+      y={y - height / 2}
+      width={width}
+      height={height}
+      {...mouseHooks(m)}/>)
   }
 
   scene(entity: Entity, width: number, height: number, children: Array<Render<*>>) {
     const m = entity.maybeComponent(Mouse)
     this.elements.push(<svg
+      key={this.elements.length}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       xmlns="http://www.w3.org/2000/svg"
       {...mouseHooks(m)}
     >
-      {children.map(child => <ReactRenderer component={child} />)}
+      {children.map(child =>
+        <ReactRenderer key={child.entity.identity} component={child} />)
+      }
     </svg>)
   }
 }

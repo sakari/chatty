@@ -19,6 +19,10 @@ export class Component<Props: Object> {
     return this.entity.component(cc)
   }
 
+  name(): string {
+    return this.constructor.name
+  }
+
   set(props: $Supertype<Props>) {
     this.props = {...this.props, ...props }
     this.entity.listeners.forEach(f => f(this.entity))

@@ -28,9 +28,8 @@ class TreeEditor extends React.Component {
     this.props.onSet({...this.props.value, [key]: value})
   }
 
-  renderKey(i: number) {
+  renderKey(key: string, i: number) {
     const entry = this.props.schema.tree[i]
-    const key = Object.keys(entry)[0]
     const value = this.props.value[key]
     const prop = entry[key]
 
@@ -45,9 +44,10 @@ class TreeEditor extends React.Component {
   renderKeys() {
     const keys = []
     for(var i = 0; i < this.props.schema.tree.length; i++) {
-      keys.push(<li>
+      const key = Object.keys(this.props.schema.tree[i])[0]
+      keys.push(<li key={key}>
         <div>{i}</div>
-        {this.renderKey(i)}
+        {this.renderKey(key, i)}
       </li>)
     }
     return keys
@@ -82,12 +82,11 @@ class ComponentEditor extends React.Component {
     component: Component<any>
   }
   render() {
-    const cl = this.props.component.constructor
-    return <div>
-      <h2>{cl.name}</h2>
+    return <div key={this.props.component.name()}>
+      <h2>{this.props.component.name()}</h2>
       <SchemaEditor
         onSet={n => this.props.component.set(n)}
-        schema={cl.schema}
+        schema={this.props.component.constructor.schema}
         value={this.props.component.props} />
       </div>
   }
@@ -107,7 +106,9 @@ class EntityEditor extends React.Component {
       <h1>
         {this.props.entity.identity}
       </h1>
-      {this.props.entity.components.map(component => <ComponentEditor component={component} />)}
+      {this.props.entity.components.map(component =>
+        <ComponentEditor key={component.name()} component={component} />)
+      }
     </div>
   }
 }
