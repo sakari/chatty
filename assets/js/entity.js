@@ -149,19 +149,14 @@ export interface Draw {
   +rect: (e: Entity, x: number, y: number, width: number, height: number) => void
 }
 
-type MouseEvent = { movementX : number, movementY: number}
-type ClientMouseEvent = { clientX: number, clientY: number }
+type MouseEvent = { x : number, y: number}
+type ClientMouseEvent = { x : number, y: number}
 type MouseHandler = (e: MouseEvent) => void
 export class Mouse extends Component<{}> {
   onMouseDown: Listener<MouseEvent>
   onMouseUp: Listener<MouseEvent>
   onMouseMove: Listener<MouseEvent>
   onMouseLeave: Listener<MouseEvent>
-
-  previousPosition: {
-    clientX: number,
-    clientY: number
-  }
 
   constructor(e: Entity) {
     super(e, {})
@@ -172,20 +167,10 @@ export class Mouse extends Component<{}> {
   }
 
   hook(eventTag: 'up' | 'down' | 'move' | 'leave', event: ClientMouseEvent ) {
-    if (!this.previousPosition)
-      this.previousPosition = {
-        clientX: event.clientX,
-        clientY: event.clientY
-      }
     const e : MouseEvent = {
-      movementX: event.clientX - this.previousPosition.clientX,
-      movementY: event.clientY - this.previousPosition.clientY
+      x: event.x,
+      y: event.y
     }
-    if (eventTag === 'move')
-      this.previousPosition = {
-        clientX: event.clientX,
-        clientY: event.clientY
-      }
     switch (eventTag) {
       case 'up': this.onMouseUp.trigger(e); break
       case 'down': this.onMouseDown.trigger(e); break
@@ -230,7 +215,7 @@ export class Drag extends Component<{}> {
   move(e: MouseEvent) {
     if (this.state === 'down') {
       const t = this.component(Translation)
-      t.set({x: t.props.x + e.movementX, y: t.props.y + e.movementY })
+      t.set({x: e.x, y: e.y })
     }
   }
 }

@@ -3,12 +3,21 @@
 import React from 'react'
 import {Engine, Render, Entity, Mouse, Scene, Container} from './entity'
 
+function hook(mouse, tag) {
+  return e => {
+    const {left, top} = e.currentTarget.getBoundingClientRect()
+    return mouse.hook(tag, { x: e.clientX - left, y: e.clientY - top})
+  }
+}
+
 function mouseHooks(mouse: ?Mouse) {
+  if (!mouse)
+    return {}
   return  {
-    onMouseDown: (e: SyntheticMouseEvent) => mouse ? mouse.hook('down', e) : null,
-    onMouseUp: (e: SyntheticMouseEvent) => mouse ? mouse.hook('up', e) : null,
-    onMouseMove: (e: SyntheticMouseEvent) => mouse ? mouse.hook('move', e) : null,
-    onMouseLeave: (e: SyntheticMouseEvent) => mouse ? mouse.hook('leave', e) : null
+    onMouseDown: hook(mouse, 'down'),
+    onMouseUp: hook(mouse, 'up'),
+    onMouseMove: hook(mouse, 'move'),
+    onMouseLeave: hook(mouse, 'leave')
   }
 }
 
@@ -21,7 +30,7 @@ class ReactSvgDraw {
 
   rect(entity: Entity, x: number, y: number, width: number, height: number) {
     const m = entity.maybeComponent(Mouse)
-    this.elements.push(<rect x={x} y={y} width={width} height={height} {...mouseHooks(m)}/>)
+    this.elements.push(<rect x={x - width / 2} y={y - height / 2} width={width} height={height} {...mouseHooks(m)}/>)
   }
 
   scene(entity: Entity, width: number, height: number, children: Array<Render<*>>) {
