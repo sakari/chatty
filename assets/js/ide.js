@@ -102,7 +102,7 @@ class EntityEditor extends React.Component {
   }
 
   render() {
-    return <div>
+    return <div style={{backgroundColor: 'lightblue'}}>
       <h1>
         {this.props.entity.identity}
       </h1>
@@ -125,13 +125,30 @@ export default class Ide extends React.Component {
     const thing = new Thing(engine)
     scene.addEntity(thing)
     console.log(thing.validate())
-    this.state = {engine: engine, thing: thing}
+    engine.mode.listen.on_(this, this.forceUpdate)
+    this.state = {
+      engine: engine,
+      thing: thing
+    }
+  }
+
+  toggleMode() {
+    if (this.state.engine.mode.value === 'play') {
+      this.state.engine.edit()
+    } else {
+      this.state.engine.play()
+    }
   }
 
   render() {
-    return <div>
-      <EntityEditor entity={this.state.thing} />
-      {render(this.state.engine)}
+    return <div style={{display: 'flex'}}>
+      <div>
+        <button onClick={() => this.toggleMode()}>{this.state.engine.mode.value === 'play' ? 'Edit' : 'Play'}</button>
+        <EntityEditor entity={this.state.thing} />
+      </div>
+      <div style={{borderStyle: 'dashed'}}>
+        {render(this.state.engine)}
+      </div>
     </div>
   }
 }

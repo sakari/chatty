@@ -1,6 +1,7 @@
 // @flow
 
 import Listener from './listener'
+import State from './state'
 import * as schema from './schema'
 
 export class Component<Props: Object> {
@@ -42,9 +43,18 @@ export class Component<Props: Object> {
 export class Engine {
   identifiers: number = 0
   entities: Array<Entity> = []
+  mode: State<'play' | 'edit' | 'paused'> = new State('paused')
 
   newIdentity() {
     return this.identifiers++
+  }
+
+  play() {
+    this.mode.set('play')
+  }
+
+  edit() {
+    this.mode.set('edit')
   }
 
   scenes() : Array<Scene> {
