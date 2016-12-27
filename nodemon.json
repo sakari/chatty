@@ -8,6 +8,6 @@
     "test/*",
     "assets/**/*.spec.js"
   ],
-  "exec": "npm run build &&  npm run start",
+  "exec": "yarn run build && yarn run start",
   "ext": "js json jsx"
 }
