@@ -1,7 +1,11 @@
 // @flow
 
 import React from 'react'
-import {Engine, Render, Entity, Mouse, Scene, Container} from './entity'
+import Entity from './entity'
+import Draw from './draw'
+import Engine from './engine'
+import Mouse from './components/mouse'
+import Render from './components/render'
 
 function hook(mouse, tag) {
   return e => {
@@ -21,10 +25,11 @@ function mouseHooks(mouse: ?Mouse) {
   }
 }
 
-class ReactSvgDraw {
+class ReactSvgDraw extends Draw {
   elements: React.Element<*>[]
 
   constructor(elements: React.Element<*>[]) {
+    super()
     this.elements = elements
   }
 

@@ -2,8 +2,15 @@
 
 import React from 'react'
 import {render} from './react'
-import {Engine, Entity, Component, Scene, Thing} from './entity'
+import Scene from './scene'
+import Entity from './entity'
+import Component from './component'
+import Engine from './engine'
 import * as schema from './schema'
+import Mouse from './components/mouse'
+import Translation from './components/translation'
+import Drag from './components/drag'
+import Rect from './components/rect'
 
 class NumberEditor extends React.Component {
   props: {
@@ -110,6 +117,16 @@ class EntityEditor extends React.Component {
         <ComponentEditor key={component.name()} component={component} />)
       }
     </div>
+  }
+}
+
+class Thing extends Entity {
+  constructor(e: Engine) {
+    super(e)
+    new Translation(this, { x: 10, y: 0, z: 0, rotation: 0})
+    new Rect(this)
+    new Mouse(this)
+    new Drag(this)
   }
 }
 
