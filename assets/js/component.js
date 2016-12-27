@@ -1,6 +1,6 @@
 // @flow
 
-import Entity from './entity'
+import type Entity from './entity'
 import * as schema from './schema'
 
 export default class Component<Props: Object> {
