@@ -60,7 +60,8 @@
   },
   "ava": {
     "files": [
-      "test/cases/*.js"
+      "test/cases/*.js",
+      "assets/js/**/*.spec.js"
     ],
     "source": [
       "**/*.js",

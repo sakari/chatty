@@ -5,7 +5,8 @@
     "node_modules/**/node_modules",
     "assets/js/bundle.js",
     "dist/*",
-    "test/*"
+    "test/*",
+    "assets/**/*.spec.js"
   ],
   "exec": "npm run build &&  npm run start",
   "ext": "js json jsx"
