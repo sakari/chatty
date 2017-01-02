@@ -11,3 +11,14 @@ test('set notifies listeners', async t => {
   state.set(10)
   p
 })
+
+test('does not trigger on same value', async t => {
+  const state = new State(1)
+  const p = new Promise((ok, err) => {
+    setTimeout(() => ok, 100)
+    state.listen.on({}, err)
+  })
+  state.set(1)
+  p
+
+})

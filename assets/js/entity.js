@@ -4,7 +4,7 @@ import Listener from './listener'
 import State from './state'
 import * as schema from './schema'
 import type Component from './component'
-import type Engine from './engine'
+import type Engine, {Mode} from './engine'
 import type Scene from './scene'
 
 export default class Entity {
@@ -12,15 +12,37 @@ export default class Entity {
   engine: Engine
   scene: ?Scene = null
   components: Component<any>[] = []
+  mode: State<'running' | 'paused'> = new State('paused')
 
   add<P: Object>(c: Component<P>) {
     this.components.push(c)
+  }
+
+  engineModeChange(mode: Mode) {
+    switch (mode) {
+      case 'play':
+        this.mode.set('running')
+        break;
+      case 'edit':
+      case 'pause':
+        this.mode.set('paused')
+        break;
+    }
   }
 
   constructor(engine: Engine) {
     this.identity = engine.newIdentity()
     this.engine = engine
     this.engine.addEntity(this)
+    this.mode.listen.on(this, this.modeChange)
+  }
+
+  modeChange() {
+    if (this.mode.value === 'running') {
+      this.components.forEach(component => component.run())
+    } else if (this.mode.value === 'paused') {
+      this.components.forEach(component => component.pause())
+    }
   }
 
   maybeComponent<C>(cc: Class<C>): ?C {

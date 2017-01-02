@@ -23,6 +23,10 @@ export default class Component<Props: Object> {
     return this.constructor.name
   }
 
+  run() {}
+
+  pause() {}
+
   set(props: $Supertype<Props>) {
     this.props = {...this.props, ...props }
     this.entity.listeners.forEach(f => f(this.entity))

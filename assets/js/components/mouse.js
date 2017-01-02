@@ -25,11 +25,13 @@ export default class Mouse extends Component<{}> {
       x: event.x,
       y: event.y
     }
-    switch (eventTag) {
-      case 'up': this.onMouseUp.trigger(e); break
-      case 'down': this.onMouseDown.trigger(e); break
-      case 'move': this.onMouseMove.trigger(e); break
-      case 'leave': this.onMouseLeave.trigger(e); break
+    if (this.entity.mode.value === 'running') {
+      switch (eventTag) {
+        case 'up': this.onMouseUp.trigger(e); break
+        case 'down': this.onMouseDown.trigger(e); break
+        case 'move': this.onMouseMove.trigger(e); break
+        case 'leave': this.onMouseLeave.trigger(e); break
+      }
     }
   }
 }

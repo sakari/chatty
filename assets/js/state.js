@@ -10,7 +10,9 @@ export default class State<Value> {
   }
 
   set(value: Value) {
-    this.value = value
-    this.listen.trigger(this.value)
+    if (this.value !== value) {
+      this.value = value
+      this.listen.trigger(this.value)
+    }
   }
 }
