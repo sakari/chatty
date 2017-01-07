@@ -67,7 +67,7 @@ class ReactRenderer extends React.Component {
   }
 
   componentDidMount() {
-    this.props.component.entity.onUpdated(() => this.forceUpdate())
+    this.props.component.entity.listeners.on_(this, this.forceUpdate)
   }
 
   render() {

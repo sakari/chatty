@@ -11,8 +11,23 @@ export default class Drag extends Component<{}> {
   constructor(e: Entity) {
     super(e, {})
     this.state = 'up'
+  }
+
+  pause() {
+    this.up()
+    const mouse = this.component(Mouse)
+    mouse.onMouseDown.off(this, this.down)
+    super.pause()
+  }
+
+  disabled() {
+    this.pause()
+  }
+
+  run() {
     const mouse = this.component(Mouse)
     mouse.onMouseDown.on(this, this.down)
+    super.run()
   }
 
   up() {

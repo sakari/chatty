@@ -24,20 +24,20 @@ export default class Component<Props: Object> {
   }
 
   run() {
-    this.entity.listeners.forEach(f => f(this.entity))
+    this.entity.listeners.trigger(this.entity)
   }
 
   pause() {
-    this.entity.listeners.forEach(f => f(this.entity))
+    this.entity.listeners.trigger(this.entity)
   }
 
   disabled() {
-    this.entity.listeners.forEach(f => f(this.entity))
+    this.entity.listeners.trigger(this.entity)
   }
 
   set(props: $Supertype<Props>) {
     this.props = {...this.props, ...props }
-    this.entity.listeners.forEach(f => f(this.entity))
+    this.entity.listeners.trigger(this.entity)
   }
 
   validate() {

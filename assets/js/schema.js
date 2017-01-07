@@ -17,6 +17,23 @@ export class Prop {
 }
 
 
+export class InstanceOf<C> extends Prop {
+  cl: Class<C>
+
+  constructor(cl: Class<C>) {
+    super()
+    this.cl = cl
+  }
+
+  validate(n: any): Array<Error> {
+    if (!(n instanceof this.cl)) {
+      const cl : any = this.cl
+      return [this.error(n, 'not an ' + cl.name)]
+    }
+    return []
+  }
+}
+
 export class Number extends Prop {
   validate(n: any): Array<Error> {
     if (typeof n !== 'number') {

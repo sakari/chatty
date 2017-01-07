@@ -14,6 +14,8 @@ export default class Entity {
   components: Component<any>[] = []
   mode: State<'running' | 'paused' | 'disabled'> = new State('paused')
 
+  listeners : Listener<Entity> = new Listener()
+
   add<P: Object>(c: Component<P>) {
     this.components.push(c)
   }
@@ -61,12 +63,6 @@ export default class Entity {
     if (c) return c
     const x: any = cc
     throw new Error('Could not find component: ' + x.name)
-  }
-
-  listeners: Array<(e: Entity) => void> = []
-
-  onUpdated(fn: (e: Entity) => void) {
-    this.listeners.push(fn)
   }
 
   validate() {

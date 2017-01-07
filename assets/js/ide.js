@@ -3,10 +3,12 @@
 import React from 'react'
 import {render} from './react'
 import Scene from './scene'
+import IdeEntity from './ide_entity'
 import Entity from './entity'
 import Component from './component'
 import Engine from './engine'
 import * as schema from './schema'
+import Hover from './components/hover'
 import Mouse from './components/mouse'
 import Translation from './components/translation'
 import Drag from './components/drag'
@@ -105,7 +107,7 @@ class EntityEditor extends React.Component {
   }
 
   componentWillMount() {
-    this.props.entity.onUpdated(() => this.forceUpdate())
+    this.props.entity.listeners.on_(this, this.forceUpdate)
   }
 
   render() {
@@ -127,6 +129,13 @@ class Thing extends Entity {
     new Rect(this)
     new Mouse(this)
     new Drag(this)
+    new Hover(this)
+  }
+}
+
+class ThingIde extends IdeEntity {
+  constructor(e: Engine, t: Thing) {
+    super(e, t)
   }
 }
 
@@ -141,7 +150,7 @@ export default class Ide extends React.Component {
     const scene = new Scene(engine)
     const thing = new Thing(engine)
     scene.addEntity(thing)
-    console.log(thing.validate())
+    scene.addEntity(new ThingIde(engine, thing))
     engine.mode.listen.on_(this, this.forceUpdate)
     this.state = {
       engine: engine,
