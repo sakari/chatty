@@ -23,9 +23,17 @@ export default class Component<Props: Object> {
     return this.constructor.name
   }
 
-  run() {}
+  run() {
+    this.entity.listeners.forEach(f => f(this.entity))
+  }
 
-  pause() {}
+  pause() {
+    this.entity.listeners.forEach(f => f(this.entity))
+  }
+
+  disabled() {
+    this.entity.listeners.forEach(f => f(this.entity))
+  }
 
   set(props: $Supertype<Props>) {
     this.props = {...this.props, ...props }

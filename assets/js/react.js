@@ -71,10 +71,14 @@ class ReactRenderer extends React.Component {
   }
 
   render() {
-    const elements = []
-    const draw = new ReactSvgDraw(elements)
-    this.props.component.render(draw)
-    return <g key={this.props.component.entity.identity}>{elements}</g>
+    if (this.props.component.entity.mode.value === 'disabled') {
+      return null
+    } else {
+      const elements = []
+      const draw = new ReactSvgDraw(elements)
+      this.props.component.render(draw)
+      return <g key={this.props.component.entity.identity}>{elements}</g>
+    }
   }
 }
 

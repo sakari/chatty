@@ -12,7 +12,7 @@ export default class Entity {
   engine: Engine
   scene: ?Scene = null
   components: Component<any>[] = []
-  mode: State<'running' | 'paused'> = new State('paused')
+  mode: State<'running' | 'paused' | 'disabled'> = new State('paused')
 
   add<P: Object>(c: Component<P>) {
     this.components.push(c)
@@ -42,6 +42,8 @@ export default class Entity {
       this.components.forEach(component => component.run())
     } else if (this.mode.value === 'paused') {
       this.components.forEach(component => component.pause())
+    } else if (this.mode.value === 'disabled') {
+      this.components.forEach(component => component.disabled())
     }
   }
 
