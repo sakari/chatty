@@ -12,17 +12,28 @@ export default class Lock extends Component<{
     { to: new schema.InstanceOf(Entity) }
   ])
 
+  lockedTo: ?Entity
+
   constructor(e: Entity, opts: { to: Entity }) {
     super(e, opts)
-    this.setLock(this.props.to)
+    this.lockOn(this.props.to)
   }
 
-  setLock(to: Entity) {
-    if (this.locked) {
+  lockOn(to: Entity) {
+    if (this.lockedTo) {
+      this.lockedTo.listeners.off(this, this.track)
     }
+    this.lockedTo = to
+    to.listeners.on_(this, this.track)
+  }
+
+  track() {
+    const t = this.props.to.component(Translation)
+    this.entity.component(Translation).set(t.props)
   }
 
   set(props: $Supertype<{to: Entity}>) {
-
+    this.lockOn(props.to)
+    super.set(props)
   }
 }

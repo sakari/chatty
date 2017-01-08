@@ -14,6 +14,22 @@ import Translation from './components/translation'
 import Drag from './components/drag'
 import Rect from './components/rect'
 
+class NormalizedEditor extends React.Component {
+  props: {
+    value: number,
+    schema: schema.Normalized,
+    onSet: (n: number) => void
+  }
+
+  render() {
+    const value = this.props.value || 0
+    return <span>
+      <span>{value}</span>
+      <input type="range" max="1" min="0" step="0.01" value={value} onChange={e => this.props.onSet(e.target.value)} />
+    </span>
+  }
+}
+
 class NumberEditor extends React.Component {
   props: {
     value: number,
@@ -26,6 +42,63 @@ class NumberEditor extends React.Component {
   }
 }
 
+class EnumEditor extends React.Component {
+  props: {
+    value: Array<string>,
+    schema: schema.Enum,
+    onSet: (n: number) => void
+  }
+  render() {
+    return <select value={this.props.value} onChange={e => this.props.onSet(e.target.value)}>
+      {this.props.schema.values.map(o =>
+        <option key={o} value={o}>{o}</option> )}
+      </select>
+  }
+}
+
+class ColorEditor extends React.Component {
+  props: {
+    value: string,
+    schema: schema.Color,
+    onSet: (n: number) => void
+  }
+  render() {
+    return <input type="color" value={this.props.value} onChange={e => this.props.onSet(e.target.value)}/>
+  }
+}
+
+function editorForProp(prop: schema.Prop, value: any, onSet) {
+  if (prop instanceof schema.Tree) {
+    return <TreeEditor schema={prop} value={value} onSet={onSet}/>
+  } else if (prop instanceof schema.Number) {
+    return <NumberEditor schema={prop} value={value} onSet={onSet}/>
+  } else if (prop instanceof schema.Optional) {
+    return <OptionalEditor schema={prop} value={value} onSet={onSet}/>
+  } else if (prop instanceof schema.Enum) {
+    return <EnumEditor schema={prop} value={value} onSet={onSet}/>
+  } else if (prop instanceof schema.Color) {
+    return <ColorEditor schema={prop} value={value} onSet={onSet}/>
+  } else if (prop instanceof schema.Normalized) {
+    return <NormalizedEditor schema={prop} value={value} onSet={onSet}/>
+  }
+}
+
+class OptionalEditor extends React.Component {
+  props: {
+    value: mixed,
+    schema: schema.Optional,
+    onSet: (n: mixed) => void
+  }
+
+  render() {
+    const component = editorForProp(this.props.schema.inner, this.props.value, v => this.props.onSet(v))
+    if (component) {
+      return component
+    }
+    return <div>-</div>
+  }
+}
+
 class TreeEditor extends React.Component {
   props: {
     value: Object,
@@ -34,18 +107,21 @@ class TreeEditor extends React.Component {
   }
 
   set(key: string, value: any) {
-    this.props.onSet({...this.props.value, [key]: value})
+    if (this.props.value) {
+      this.props.onSet({...this.props.value, [key]: value})
+    } else {
+      this.props.onSet({[key]: value})
+    }
   }
 
   renderKey(key: string, i: number) {
     const entry = this.props.schema.tree[i]
-    const value = this.props.value[key]
+    const value = this.props.value ? this.props.value[key] : undefined
     const prop = entry[key]
 
-    if (prop instanceof schema.Tree) {
-      return <TreeEditor schema={prop} value={value} onSet={n => this.set(key, n)}/>
-    } else if (prop instanceof schema.Number) {
-      return <NumberEditor schema={prop} value={value} onSet={n => this.set(key, n)}/>
+    const component = editorForProp(prop, value, n => this.set(key, n))
+    if (component) {
+      return component
     }
     return <div>-</div>
   }
@@ -55,7 +131,7 @@ class TreeEditor extends React.Component {
     for(var i = 0; i < this.props.schema.tree.length; i++) {
       const key = Object.keys(this.props.schema.tree[i])[0]
       keys.push(<li key={key}>
-        <div>{i}</div>
+        <div>{key}</div>
         {this.renderKey(key, i)}
       </li>)
     }
@@ -126,7 +202,7 @@ class Thing extends Entity {
   constructor(e: Engine) {
     super(e)
     new Translation(this, { x: 10, y: 0, z: 0, rotation: 0})
-    new Rect(this)
+    new Rect(this, {width: 20, height: 20})
     new Mouse(this)
     new Drag(this)
     new Hover(this)
@@ -136,6 +212,7 @@ class Thing extends Entity {
 class ThingIde extends IdeEntity {
   constructor(e: Engine, t: Thing) {
     super(e, t)
+    new Rect(this, {width: 10, height: 40})
   }
 }
 
