@@ -3,6 +3,7 @@
 import React from 'react'
 import Entity from './entity'
 import Draw from './draw'
+import type {Stroke, Fill} from './draw'
 import Engine from './engine'
 import Mouse from './components/mouse'
 import Render from './components/render'
@@ -33,7 +34,23 @@ class ReactSvgDraw extends Draw {
     this.elements = elements
   }
 
-  rect(entity: Entity, x: number, y: number, width: number, height: number) {
+  strokeToReact(stroke: Stroke) {
+    return {
+      stroke: stroke.color,
+      strokeWidth: stroke.width,
+      strokeOpacity: stroke.opacity,
+      strokeLinecap: stroke.linecap
+    }
+  }
+
+  fillToReact(fill: Fill) {
+    return {
+      fill: fill.color,
+      fillOpacity: fill.opacity
+    }
+  }
+
+  rect(entity: Entity, x: number, y: number, width: number, height: number, stroke: Stroke, fill: Fill) {
     const m = entity.maybeComponent(Mouse)
     this.elements.push(<rect
       key={this.elements.length}
@@ -41,6 +58,8 @@ class ReactSvgDraw extends Draw {
       y={y - height / 2}
       width={width}
       height={height}
+      {...this.strokeToReact(stroke)}
+      {...this.fillToReact(fill)}
       {...mouseHooks(m)}/>)
   }
 

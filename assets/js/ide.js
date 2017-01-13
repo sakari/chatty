@@ -202,7 +202,15 @@ class Thing extends Entity {
   constructor(e: Engine) {
     super(e)
     new Translation(this, { x: 10, y: 0, z: 0, rotation: 0})
-    new Rect(this, {width: 20, height: 20})
+    new Rect(this, {width: 20, height: 20, stroke: {
+      linecap: 'square',
+      width: 1,
+      opacity: 1,
+      color: 'black'
+    }, fill: {
+      opacity: 1,
+      color: 'black'
+    }})
     new Mouse(this)
     new Drag(this)
     new Hover(this)
@@ -212,7 +220,15 @@ class Thing extends Entity {
 class ThingIde extends IdeEntity {
   constructor(e: Engine, t: Thing) {
     super(e, t)
-    new Rect(this, {width: 10, height: 40})
+    new Rect(this, {width: 10, height: 40, stroke: {
+      width: 1,
+      linecap: 'square',
+      opacity: 1,
+      color: 'black'
+    }, fill: {
+      opacity: 1,
+      color: 'black'
+    }})
   }
 }
 
