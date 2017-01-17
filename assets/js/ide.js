@@ -255,6 +255,7 @@ class ThingIde extends IdeEntity {
 
 export default class Ide extends React.Component {
   state: {
+    scene: Scene,
     engine: Engine,
     selected: ?IdeEntity
   }
@@ -263,12 +264,10 @@ export default class Ide extends React.Component {
     super()
     const engine = new Engine()
     const scene = new Scene(engine)
-    const thing = new Thing(engine)
-    scene.addEntity(thing)
-    scene.addEntity(new ThingIde(engine, this, thing))
     engine.mode.listen.on_(this, this.forceUpdate)
     this.state = {
-      engine: engine,
+      scene,
+      engine,
       selected: null
     }
   }
@@ -285,10 +284,19 @@ export default class Ide extends React.Component {
     }
   }
 
+  addEntity() {
+    const thing = new Thing(this.state.engine)
+    this.state.scene.addEntity(thing)
+    const ide = new ThingIde(this.state.engine, this, thing)
+    this.state.scene.addEntity(ide)
+    this.select(ide)
+  }
+
   render() {
     return <div style={{display: 'flex'}}>
       <div>
         <button onClick={() => this.toggleMode()}>{this.state.engine.mode.value === 'play' ? 'Edit' : 'Play'}</button>
+        <button onClick={() => this.addEntity()}>Add Entity</button>
         {this.state.selected ? <EntityEditor entity={this.state.selected.pair} /> : "no entity selected"}
       </div>
       <div style={{borderStyle: 'dashed'}}>
