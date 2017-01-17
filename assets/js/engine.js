@@ -15,7 +15,7 @@ export default class Engine {
 
   modeChanged() {
     for (var i = 0; i < this.entities.length; i++) {
-      this.entities[i].engineModeChange(this.mode.value)
+      this.entities[i].updateMode()
     }
   }
 

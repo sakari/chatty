@@ -20,16 +20,16 @@ export default class Entity {
     this.components.push(c)
   }
 
-  engineModeChange(mode: Mode) {
-    switch (mode) {
-      case 'play':
-        this.mode.set('running')
-        break;
-      case 'edit':
-      case 'pause':
-        this.mode.set('paused')
-        break;
+  getMode() {
+    const mode = this.engine.mode.value
+    if (mode === 'play') {
+      return 'running'
     }
+    return 'paused'
+  }
+
+  updateMode() {
+    this.mode.set(this.getMode())
   }
 
   constructor(engine: Engine) {
@@ -47,6 +47,7 @@ export default class Entity {
     } else if (this.mode.value === 'disabled') {
       this.components.forEach(component => component.disabled())
     }
+    this.listeners.trigger(this)
   }
 
   maybeComponent<C>(cc: Class<C>): ?C {

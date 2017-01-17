@@ -19,10 +19,12 @@ function mouseHooks(mouse: ?Mouse) {
   if (!mouse)
     return {}
   return  {
+    onClick: hook(mouse, 'click'),
     onMouseDown: hook(mouse, 'down'),
     onMouseUp: hook(mouse, 'up'),
     onMouseMove: hook(mouse, 'move'),
-    onMouseLeave: hook(mouse, 'leave')
+    onMouseLeave: hook(mouse, 'leave'),
+    onMouseEnter: hook(mouse, 'enter')
   }
 }
 

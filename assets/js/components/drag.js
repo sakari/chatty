@@ -21,7 +21,10 @@ export default class Drag extends Component<{}> {
   }
 
   disabled() {
-    this.pause()
+    this.up()
+    const mouse = this.component(Mouse)
+    mouse.onMouseDown.off(this, this.down)
+    this.disabled()
   }
 
   run() {

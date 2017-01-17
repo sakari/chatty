@@ -1,6 +1,7 @@
 // @flow
 
 import Engine from './engine'
+import type Ide from './ide'
 import Entity from './entity'
 import type {Mode} from './engine'
 import Translation from './components/translation'
@@ -8,25 +9,30 @@ import Lock from './components/lock'
 
 export default class IdeEntity extends Entity {
   pair: Entity
+  ide: Ide
 
-  constructor(engine: Engine, pair: Entity) {
+  constructor(engine: Engine, ide: Ide, pair: Entity) {
     super(engine)
     this.pair = pair
+    this.ide = ide
     new Translation(this)
     new Lock(this, { to: this.pair })
   }
 
-  engineModeChange(mode: Mode) {
-    switch (mode) {
+  getMode() {
+    const mode = this.engine.mode.value
+    switch(mode) {
       case 'play':
-        this.mode.set('disabled')
-        break
+        return 'disabled'
       case 'edit':
-        this.mode.set('running')
-        break
+        return 'running'
       case 'pause':
-        this.mode.set('paused')
-        break
+        return 'paused'
     }
+    return 'paused'
+  }
+
+  updateMode() {
+    this.mode.set(this.getMode())
   }
 }

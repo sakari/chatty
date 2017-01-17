@@ -218,37 +218,63 @@ class Thing extends Entity {
 }
 
 class ThingIde extends IdeEntity {
-  constructor(e: Engine, t: Thing) {
-    super(e, t)
-    new Rect(this, {width: 10, height: 40, stroke: {
+  constructor(e: Engine, ide: Ide, t: Thing) {
+    super(e, ide, t)
+    new Rect(this, {width: 40, height: 40, stroke: {
       width: 1,
       linecap: 'square',
       opacity: 1,
       color: 'black'
     }, fill: {
-      opacity: 1,
+      opacity: 0,
       color: 'black'
     }})
+    const mouse = new Mouse(this)
+    mouse.onMouseClick.on(this, this.select)
+    const hover = new Hover(this)
+    hover.hover.listen.on(this, this.updateMode)
+    t.component(Hover).hover.listen.on(this, this.updateMode)
+  }
+
+  select() {
+    this.ide.select(this)
+  }
+
+  getMode() {
+    const mode = super.getMode()
+    if (mode === 'running') {
+      if (this.pair.component(Hover).hover.value === 'on' || this.component(Hover).hover.value === 'on') {
+        return 'running'
+      } else {
+        return 'disabled'
+      }
+    }
+    return mode
   }
 }
 
 export default class Ide extends React.Component {
   state: {
     engine: Engine,
-    thing: Thing
+    selected: ?IdeEntity
   }
+
   constructor() {
     super()
     const engine = new Engine()
     const scene = new Scene(engine)
     const thing = new Thing(engine)
     scene.addEntity(thing)
-    scene.addEntity(new ThingIde(engine, thing))
+    scene.addEntity(new ThingIde(engine, this, thing))
     engine.mode.listen.on_(this, this.forceUpdate)
     this.state = {
       engine: engine,
-      thing: thing
+      selected: null
     }
+  }
+
+  select(entity: IdeEntity) {
+    this.setState({selected: entity})
   }
 
   toggleMode() {
@@ -263,7 +289,7 @@ export default class Ide extends React.Component {
     return <div style={{display: 'flex'}}>
       <div>
         <button onClick={() => this.toggleMode()}>{this.state.engine.mode.value === 'play' ? 'Edit' : 'Play'}</button>
-        <EntityEditor entity={this.state.thing} />
+        {this.state.selected ? <EntityEditor entity={this.state.selected.pair} /> : "no entity selected"}
       </div>
       <div style={{borderStyle: 'dashed'}}>
         {render(this.state.engine)}
